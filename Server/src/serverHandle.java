@@ -14,7 +14,7 @@ public class serverHandle {
 
     public static void main(String args[]) throws InterruptedException, SQLException, ClassNotFoundException {
         if (args.length == 0 || args.length > 11) {
-            System.err.println("Usage: java server <port> -u [sql user] -p [sql password] -s [sql port] -d [sql database]");
+            System.err.println("Usage: java -jar server.jar <port> -u [sql user] -p [sql password] -s [mysql port] -d [sql database]");
             System.exit(-1);
         }
         port = Integer.parseInt(args[0]);

@@ -22,8 +22,8 @@ public class Client extends Thread{
 
             }
             listener.join();
-            System.out.println(System.currentTimeMillis() + " > Client (" + client + ") has disconnected.");
-            Init.server.clients.remove(client);
+            Server.log("Client (" + client + ") has disconnected.");
+            Server.clients.remove(client);
             return;
 
         } catch (IOException e) {

@@ -1,3 +1,4 @@
+import org.sqlite.JDBC;
 import java.io.File;
 import java.io.IOException;
 import java.sql.*;
@@ -7,56 +8,53 @@ public class Communication extends Thread {
 
     public Communication(String sqlDatabase) {
         String url = "jdbc:sqlite:" + sqlDatabase + ".db";
-        System.out.println("Connecting to: " + url);
+        Server.log("Connecting to: " + url);
         try {
             File dbFile = new File(sqlDatabase+".db");
             if(!dbFile.exists()) dbFile.createNewFile();
+            DriverManager.registerDriver(new JDBC());
             con = DriverManager.getConnection(url);
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery("PRAGMA user_version");
-            if (rs.next()) System.out.println("Connected to database! " + rs.getString(1));
-            Init.server.sqlRunning = !con.isClosed();
-        } catch (SQLException ex) {
+            if (rs.next()) Server.log("Connected to database! " + rs.getString(1));
+            Server.sqlRunning = !con.isClosed();
+        } catch (SQLException | IOException ex) {
             ex.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
         } finally {
             try {
                 if (con != null) {
                     con.close();
                 }
             } catch (SQLException ex) {
-                System.out.println(ex.getMessage());
+                Server.error(ex.getMessage(), ex);
             }
         }
     }
 
     public Communication(String sqlHost, String sqlUser, String sqlPass, String sqlPort, String sqlDatabase) {
         String url = "jdbc:mysql://"+sqlHost+":"+sqlPort+"/";
-        System.out.println("Connecting to: " + url);
+        Server.log("Connecting to: " + url);
         try {
             con = DriverManager.getConnection(url, sqlUser, sqlPass);
-            Statement st = con.createStatement();
-            ResultSet rs = st.executeQuery("SELECT VERSION()");
-            if (rs.next()) System.out.println("Connected to database! " + rs.getString(1));
-            Init.server.sqlRunning = !con.isClosed();
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }  finally {
-            try {
-                if (con != null) {
-                    con.close();
-                }
-            } catch (SQLException ex) {
-                System.out.println(ex.getMessage());
+            if (con.isClosed()) {
+                Server.error("Could not make database connection",true);
+                Server.sqlRunning = false;
+                return;
             }
+            Statement st = con.createStatement();
+            Server.sqlRunning = true;
+            ResultSet rs = st.executeQuery("SELECT VERSION()");
+            if (rs.next()) Server.log("Connected to server! " + rs.getString(1));
+            makeDatabase(st);
+        } catch (SQLException ex) {
+            Server.error("SQL Error",ex);
         }
     }
 
     @Override
     public void run() {
-        System.out.println("SQL Thread running.");
-        while(Init.server.sqlRunning) {
+        Server.log("SQL Thread running.");
+        while(Server.sqlRunning) {
             //TODO check for a sent message.
 
         }
@@ -65,29 +63,31 @@ public class Communication extends Thread {
     public static void makeDatabase(Statement st) throws SQLException {
         ResultSet rs = st.executeQuery("SHOW DATABASES LIKE 'chatServer';");
         if(rs.next()) {
-            System.out.println(System.currentTimeMillis() + " > Database already exists: " + rs.getString(1));
+            Server.log("Database already exists: " + rs.getString(1));
             st.execute("USE chatServer;");
-            rs = st.executeQuery("SHOW TABLES LIKE 'myTable';");
+            rs = st.executeQuery("SHOW TABLES LIKE 'users';");
             result(rs);
             if(rs.next()) initTable(st); else result(rs);
         } else {
-            System.out.println(System.currentTimeMillis() + " > Database does not exist");
+            Server.log("Database does not exist");
             initDatabase(st);
             initTable(st);
         }
     }
 
     public static void result(ResultSet rs) throws SQLException {
-        if (rs.next()) System.out.println("SQL returned: " + rs.getString(1));
+        if (rs.next()) Server.log("SQL returned: " + rs.getString(1));
     }
 
     private static void initDatabase(Statement st) throws SQLException {
-        st.execute("CREATE DATABASE chatServer;");
+        Server.log("Creating database 'chatServer'");
+        st.execute("CREATE DATABASE IF NOT EXISTS chatServer;");
     }
 
     private static void initTable(Statement st) throws SQLException {
+        Server.log("Creating table 'users'");
         st.executeUpdate("USE chatServer;");
-        st.execute("CREATE TABLE users (" +
+        st.execute("CREATE TABLE IF NOT EXISTS users (" +
                 "ID int(64) NOT NULL AUTO_INCREMENT," +
                 "userName varchar(255) NOT NULL," +
                 "emailAdress varchar(255) NOT NULL," +
@@ -101,4 +101,6 @@ public class Communication extends Thread {
                 "UNIQUE KEY `emailAdress_UNIQUE` (`emailAdress`)," +
                 "UNIQUE KEY `sessionKey_UNIQUE` (`sessionKey`));");
     }
+
+
 }

@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Server:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Server_jar</output-path>
+    <root id="archive" name="Server.jar">
+      <element id="module-output" name="Server" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/Server/rsc/mysql-connector-java-5.1.45-bin.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/Server/rsc/sqlite-jdbc-3.21.0.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

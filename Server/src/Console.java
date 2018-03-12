@@ -12,21 +12,21 @@ public class Console extends Thread {
             String args[];
             String msg;
             PrintWriter out;
-            System.out.println("Starting console.");
+            Server.log("Starting console.");
             while((msg = console.nextLine()) != null) {
                 args = msg.toLowerCase().split(" ");
                 if (args[0].equals("help")) {
-                    System.out.println("Commands available:");
+                    Server.log("Commands available:");
                     // TODO Make a commands class or interface. Stuff it with it's usage and the functions?
                 } else if (args[0].equals("mda5")) {
                     if (msg.length() < 6) {
-                        System.out.println("Usage: mda5 <string>");
+                        Server.log("Usage: mda5 <string>");
                     }
                     msg = Security.mda5(msg.substring(5,msg.length()));
-                    System.out.println("The MDA5 hash is: " + msg);
+                    Server.log("The MDA5 hash is: " + msg);
                 } else if(args[0].equals("say")) {
                     if(args.length == 1) {
-                        System.out.println("Usage: say [clientID] <message>");
+                        Server.log("Usage: say [clientID] <message>");
                         return;
                     }
                     msg = msg.substring(4,msg.length());
@@ -34,21 +34,21 @@ public class Console extends Thread {
                         out = new PrintWriter(client.getOutputStream(), true);
                         out.println(msg);
                     }
-                    System.out.println("Console @all > " + msg);
+                    Server.log("Console @all > " + msg);
                 } else if (args[0].equals("list")) {
-                    System.out.println("All clients present:");
+                    Server.log("All clients present:");
                     if (Init.server.clients.size() > 0) {
-                        for (Socket client : Init.server.clients) {
-                            System.out.println("CLIENT @ " + client);
+                        for (Socket client : Server.clients) {
+                            Server.log("CLIENT @ " + client);
                         }
                     } else {
-                        System.out.println("There are currently no clients connected.");
+                        Server.log("There are currently no clients connected.");
                     }
                 } else if(args[0].equals("restart")) {
                     //TODO Restart thread
-                    System.out.println(System.currentTimeMillis() + " > Restarting server");
+                    Server.warn("Restarting server");
                 } else {
-                    System.out.println("No command found: " + msg);
+                    Server.error("No command found: " + msg,false);
                 }
             }
         } catch (IOException e) {

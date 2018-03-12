@@ -2,7 +2,7 @@
 
 What is this?  
 Well it's simple, would you like to set up a (local) chatserver? Then this might be the solution for you!  
-This repository includes 2 parts, **client** and **server**.  
+This repository includes 2 parts, **client** and **server**. Only UTF-8 is supported. 
 
 The server and client communicate using 128bit AES encryption over TCP. 
 In the build folder you can find the latest builds of both JAR's. 

@@ -23,8 +23,7 @@ public class ClientListener extends Thread {
             BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
             ResultSet rs;
             while((clientSays = in.readLine()) != null) {
-                if(Init.server.debug) System.out.println(System.currentTimeMillis() +
-                        " > CLIENT : (" + client + ") > " + clientSays);
+                if(Init.server.debug) Server.log("CLIENT : (" + client + ") > " + clientSays);
                 String[] args = clientSays.split(" ");
                 Statement st = Communication.con.createStatement();
                 if(TIME_SINCE_LAST <= 100f) {
@@ -41,15 +40,14 @@ public class ClientListener extends Thread {
                             if(args[1].contains("@")) {
                                 rs = st.executeQuery("SELECT userName FROM users WHERE emailAdress = '"+args[1]+"';");
                                 if(rs.next()) clientName = rs.getString(1);
-                                else System.err.println(System.currentTimeMillis() +
+                                else Server.warn(System.currentTimeMillis() +
                                         " > No user found for email adress: " + args[1]);
                             } else clientName = args[1];
                             token = Security.mda5(String.valueOf(Math.random()));
                             out.println("token " + token);
                             st.executeUpdate("UPDATE users SET sessionKey = '" + token +
                                     "' WHERE userName = '"+clientName+"' AND privateKey  = '"+args[2]+"';");
-                            System.out.println(System.currentTimeMillis() +
-                                    " > Client("+clientName+") logged in with token: " + token);
+                            Server.log("Client("+clientName+") logged in with token: " + token);
                         }
                     } catch (SQLException | NoSuchAlgorithmException e) {
                         e.printStackTrace();
@@ -61,7 +59,7 @@ public class ClientListener extends Thread {
                             "WHERE userName = '" + args[2] + "';");
                     if(rs.next()) {
                         // Here we handle our sending of a message.
-                        System.out.println(System.currentTimeMillis() + " > Sending message to: " + args[2]);
+                        Server.log("Sending message to: " + args[2]);
                         String msg = clientSays.substring(
                                 args[0].length()+args[1].length()+args[2].length() + 3, clientSays.length());
                         st.executeUpdate(
@@ -69,7 +67,7 @@ public class ClientListener extends Thread {
                                         "(NULL,'"+clientName+"','"+args[2]+"','"+msg+"',NULL);");
                     } else {
                         Communication.result(rs);
-                        System.err.println(System.currentTimeMillis() + " > User not found.");
+                        Server.warn(System.currentTimeMillis() + " > User not found.");
                         return;
                     }
                 } else if (args[0].equals("get") && (args.length > 2 || args.length < 4)) {
@@ -79,7 +77,7 @@ public class ClientListener extends Thread {
                             "WHERE sessionKey = '" + token + "';");
                     if(rs.next()) {
                         clientName = rs.getString(1);
-                        System.out.println(System.currentTimeMillis() + " > Retrieving info for user: " + clientName);
+                        Server.log("Retrieving info for user: " + clientName);
                         if(args.length == 2) rs = st.executeQuery("SELECT messageID, sender, receiver, message FROM chatLog" +
                                 " WHERE receiver = '"+clientName+"' || sender = '"+clientName+"';");
                         else rs = st.executeQuery("SELECT messageID, sender, receiver, message FROM chatLog" +
@@ -93,17 +91,17 @@ public class ClientListener extends Thread {
                         }
                     } else {
                         Communication.result(rs);
-                        System.err.println(System.currentTimeMillis() + " > User not found.");
+                        Server.warn(System.currentTimeMillis() + " > User not found.");
                         return;
                     }
                 }
                 lastTime = System.currentTimeMillis();
             }
-            System.out.println(System.currentTimeMillis() + " > Client has disconnected.");
+            Server.log("Client has disconnected.");
         } catch (IOException e) {
-            System.err.println(System.currentTimeMillis() + " > Listener thread stopped: " + e.getMessage());
+            Server.error("Listener thread stopped: " + e.getMessage(),e);
         } catch (SQLException e) {
-            System.err.println(System.currentTimeMillis() + " > SQL ERROR.");
+            Server.error("SQL ERROR.",e);
             e.printStackTrace();
         }
     }

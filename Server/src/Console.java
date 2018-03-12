@@ -2,6 +2,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Scanner;
 
 public class Console extends Thread {
@@ -47,13 +49,19 @@ public class Console extends Thread {
                 } else if(args[0].equals("restart")) {
                     //TODO Restart thread
                     Server.warn("Restarting server");
+                } else if(args[0].equals("register")) {
+                    if (args.length > 3) {
+                        boolean b = false;
+                        int i = 0;
+                        if (args.length >= 5) b = Boolean.getBoolean(args[4]);
+                        if (args.length >= 6) i = Integer.parseInt(args[5]);
+                        Communication.registerUser(Communication.con.createStatement(),args[1],args[2],args[3],b,i);
+                    } else Server.warn("Registering a user needs a minimal of 3 arguments.");
                 } else {
                     Server.error("No command found: " + msg,false);
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
+        } catch (IOException | NoSuchAlgorithmException | SQLException e) {
             e.printStackTrace();
         }
     }

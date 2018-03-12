@@ -1,10 +1,12 @@
 import org.sqlite.JDBC;
 import java.io.File;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 
 public class Communication extends Thread {
     public static Connection con;
+    public static Statement st;
 
     public Communication(String sqlDatabase) {
         String url = "jdbc:sqlite:" + sqlDatabase + ".db";
@@ -14,7 +16,7 @@ public class Communication extends Thread {
             if(!dbFile.exists()) dbFile.createNewFile();
             DriverManager.registerDriver(new JDBC());
             con = DriverManager.getConnection(url);
-            Statement st = con.createStatement();
+            st = con.createStatement();
             ResultSet rs = st.executeQuery("PRAGMA user_version");
             if (rs.next()) Server.log("Connected to database! " + rs.getString(1));
             Server.sqlRunning = !con.isClosed();
@@ -41,7 +43,7 @@ public class Communication extends Thread {
                 Server.sqlRunning = false;
                 return;
             }
-            Statement st = con.createStatement();
+            st = con.createStatement();
             Server.sqlRunning = true;
             ResultSet rs = st.executeQuery("SELECT VERSION()");
             if (rs.next()) Server.log("Connected to server! " + rs.getString(1));
@@ -102,5 +104,18 @@ public class Communication extends Thread {
                 "UNIQUE KEY `sessionKey_UNIQUE` (`sessionKey`));");
     }
 
+    public static void registerUser(Statement st, String username, String emailaddress,
+                                    String privatekey, boolean activated, int privileges)
+            throws SQLException, NoSuchAlgorithmException {
+        if (st == null) st = Communication.st;
+        st.executeUpdate("USE chatServer;");
+        st.execute("INSERT INTO users VALUES (" +
+                "null, "
+                +username+", "
+                +emailaddress+", "
+                +Security.mda5(privatekey)+", "
+                +activated+", "
+                +privileges+");");
 
+    }
 }

@@ -23,7 +23,7 @@ public class ClientListener extends Thread {
             BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
             ResultSet rs;
             while((clientSays = in.readLine()) != null) {
-                if(Init.server.debug) Server.log("CLIENT : (" + client + ") > " + clientSays);
+                if(Server.debug) Server.log("CLIENT : (" + client + ") > " + clientSays);
                 String[] args = clientSays.split(" ");
                 Statement st = Communication.con.createStatement();
                 if(TIME_SINCE_LAST <= 100f) {

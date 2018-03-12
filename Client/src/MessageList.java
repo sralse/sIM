@@ -30,12 +30,12 @@ public class MessageList {
 
     public static void loadUsers() {
         try {
-            if(login.DEBUG) System.out.println("Loading Messages...");
+            if(LoginForm.DEBUG) System.out.println("Loading Messages...");
             Thread.sleep(1000);
-            FileInputStream fs = new FileInputStream(login.path+login.log);
+            FileInputStream fs = new FileInputStream(LoginForm.path+ LoginForm.log);
             BufferedReader br = new BufferedReader(new InputStreamReader(fs));
             int i = -1;
-            String id = null, sender = null, receiver = null, s, progUser = login.getUser();
+            String id = null, sender = null, receiver = null, s, progUser = LoginForm.getUser();
             while ((s = br.readLine()) != null) {
                 i++; lastLineCount++;
                 if (i==0) id = s;
@@ -84,12 +84,12 @@ public class MessageList {
     public static void init() {
         if (init) return;
         System.out.println("Loading conversations...");
-        while(login.instance == null) try {
+        while(LoginForm.instance == null) try {
             Thread.sleep(100);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        login.instance.getMessages(new String[]{"renew"});
+        LoginForm.instance.getMessages(new String[]{"renew"});
         while(BClientListener.incomingMessage) ;
         loadUsers();
         System.out.println("Loaded MessagesList, amount of conversations: " + usersCollection.size());
@@ -99,8 +99,8 @@ public class MessageList {
                 Thread.sleep(1000);
                 while (true) {
                     while(BClientListener.incomingMessage) Thread.sleep(350);
-                    login.instance.getMessages(new String[]{"get",""+getLastID()});
-                    MessageList.renew(login.getUser());
+                    LoginForm.instance.getMessages(new String[]{"get",""+getLastID()});
+                    MessageList.renew(LoginForm.getUser());
                     Thread.sleep(350);
                 }
             } catch (InterruptedException e) {
@@ -129,7 +129,7 @@ public class MessageList {
 
     public synchronized static void renew(String user) {
         try {
-            FileInputStream fs = new FileInputStream(login.path+login.log);
+            FileInputStream fs = new FileInputStream(LoginForm.path+ LoginForm.log);
             BufferedReader br = new BufferedReader(new InputStreamReader(fs));
             while (!br.ready());
             int i = -1, j = 0;

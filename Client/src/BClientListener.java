@@ -7,10 +7,10 @@ import java.nio.charset.Charset;
 public class BClientListener extends Thread {
 
     private BufferedReader server;
-    private login client;
+    private LoginForm client;
     protected static boolean incomingMessage = false;
 
-    public BClientListener(login client, BufferedReader out) {
+    public BClientListener(LoginForm client, BufferedReader out) {
         this.client = client;
         this.server = out;
     }

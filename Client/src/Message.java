@@ -27,7 +27,7 @@ public class Message {
     }
 
     public String composeMessage() {
-        if(login.getUser().equals(sender))
+        if(LoginForm.getUser().equals(sender))
             return "<b bgcolor=" + colorBG + " color=" + colorSenderFG + "> " + sender + " :</b>" +
                     "<font bgcolor=" + colorBG + " color=" + colorReceiverText + "> " + message + " </font><br>";
         else

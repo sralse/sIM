@@ -5,7 +5,7 @@ Well it's simple, would you like to set up a (local) chatserver? Then this might
 This repository includes 2 parts, **client** and **server**. Only UTF-8 is supported. 
 
 The server and client communicate using 128bit AES encryption over TCP. 
-In the build folder [**here**](https://goo.gl/3dkJrK) you can find the latest builds of both JAR's. 
+In the build folder [**here**](https://drive.google.com/open?id=1xXVTz87CwynmIn0-QmvoODkpMPRObS_V) you can find the latest builds of both JAR's. 
 The server package can communicate with MySQL or use SQLite for data management.
 The client is equipped with a console and GUI version. The server only has a console manager. 
 You are able to use multiple users from 1 console and the server has some basic anti-bot/spam detection. 

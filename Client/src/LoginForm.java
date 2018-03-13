@@ -8,9 +8,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Scanner;
 
 public class LoginForm {
-    private final Dimension size1 = new Dimension(225, 250);
-    private final Dimension size2 = new Dimension(225, 350);
-    private final Dimension size3 = new Dimension(600, 400);
+    private final Dimension size1 = new Dimension(225, 350);
+    private final Dimension size2 = new Dimension(225, 450);
+    private final Dimension size3 = new Dimension(600, 500);
     private int width, height;
     private JFrame frame;
     private JPanel panel;
@@ -34,6 +34,12 @@ public class LoginForm {
     private JButton buttonSendNewUser;
     private JTextField textFieldChat;
     private JList listUsers;
+    private JPanel registerPanel;
+    private JButton btnRegister;
+    private JTextField textFieldUsername;
+    private JTextField txtFieldEmail;
+    private JPasswordField passwordField;
+    private JCheckBox confirm;
     private static boolean advanced = false, running = true;
     private static boolean GUI = true;
     public static String
@@ -146,7 +152,7 @@ public class LoginForm {
             out = new PrintWriter(serverSocket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
             // Set up a listener to receive messages.
-            listener = new BClientListener(this, in);
+            listener = new ServerListener(this, in);
             listener.start();
             // If we use console, set up an input.
             Scanner input = null;
@@ -453,7 +459,7 @@ public class LoginForm {
     public void login(String user, String password) throws NoSuchAlgorithmException, InterruptedException {
         System.out.println("Logging in with user: " + user + " password: " + mda5(password));
         while (out == null) Thread.sleep(100);
-        out.println("LoginForm " + user + " " + mda5(password));
+        out.println("login " + user + " " + mda5(password));
     }
 
     public void stop() throws IOException, InterruptedException {
@@ -477,7 +483,7 @@ public class LoginForm {
     public void reconnect() throws IOException {
         serverSocket = new Socket(host, Integer.parseInt(port));
         out = new PrintWriter(serverSocket.getOutputStream(), true);
-        (listener = new BClientListener(
+        (listener = new ServerListener(
                 this, in = new BufferedReader(
                 new InputStreamReader(
                         serverSocket.getInputStream())))).start();
@@ -707,4 +713,5 @@ public class LoginForm {
     public JComponent $$$getRootComponent$$$() {
         return panel;
     }
+
 }

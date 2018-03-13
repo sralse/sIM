@@ -32,4 +32,9 @@ public class Client extends Thread{
             e.printStackTrace();
         }
     }
+
+    public void fclose() throws IOException {
+        out.close();
+        client.close();
+    }
 }

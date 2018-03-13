@@ -5,20 +5,16 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class Server {
-    protected static volatile ArrayList<Socket> clients = new ArrayList<>();
-    private static Communication sqlThread;
+    protected volatile static ArrayList<Socket> clients = new ArrayList<>();
+    public volatile static Communication sqlThread;
 
-    static {
-        sqlThread = null;
-    }
-
-    private static Socket client;
-    public static boolean
+    public volatile static Socket client;
+    public volatile static boolean
             running = true,
             sqlRunning = false,
             debug = false,
             sqlite = false;
-    private static String
+    private volatile static String
             sqlHost = "127.0.0.1",
             sqlUser = "root",
             sqlPass = "root",
@@ -67,7 +63,6 @@ public class Server {
             i++;
         }
         sqlThread.start();
-        log("SQL Thread started.");
     }
 
     private void startConsole() {

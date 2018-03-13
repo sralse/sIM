@@ -33,11 +33,13 @@ public class Console extends Thread {
                     CommandRestart(args);
                 } else if(args[0].equals("register")) {
                     CommandRegister(args);
+                } else if(args[0].equals("stop")) {
+                    CommandStop(args);
                 } else {
                     Server.error("No command found: " + msg,false);
                 }
             }
-        } catch (IOException | NoSuchAlgorithmException | SQLException e) {
+        } catch (IOException | NoSuchAlgorithmException | SQLException | InterruptedException e) {
             e.printStackTrace();
         }
     }
@@ -99,7 +101,7 @@ public class Console extends Thread {
 
     private void CommandRestart(String[] args) {
         if(args.equals(help)) {
-            Server.log("restart                 This will return the MDA5 hashed instance to console.");
+            Server.log("restart                 This will restart the server.");
             return;
         }
         //TODO Restart thread
@@ -120,5 +122,19 @@ public class Console extends Thread {
             if (this.args.length >= 6) i = Integer.parseInt(this.args[5]);
             Communication.registerUser(Communication.con.createStatement(), this.args[1], this.args[2], this.args[3],b,i);
         } else Server.warn("Registering a user needs a minimal of 3 arguments.");
+    }
+
+    private void CommandStop(String[] args) throws SQLException, IOException, InterruptedException {
+        if(args.equals(help)) {
+            Server.log("stop                    This will stop the server.");
+            return;
+        }
+        Server.warn("Stopping server...");
+        Communication.close();
+        Server.sqlRunning = false;
+        Server.running = false;
+        for (Socket c:Server.clients) c.close();
+        Server.sqlThread.join();
+        System.exit(0);
     }
 }

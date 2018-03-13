@@ -90,7 +90,7 @@ public class MessageList {
             e.printStackTrace();
         }
         LoginForm.instance.getMessages(new String[]{"renew"});
-        while(BClientListener.incomingMessage) ;
+        while(ServerListener.incomingMessage) ;
         loadUsers();
         System.out.println("Loaded MessagesList, amount of conversations: " + usersCollection.size());
 
@@ -98,7 +98,7 @@ public class MessageList {
             try {
                 Thread.sleep(1000);
                 while (true) {
-                    while(BClientListener.incomingMessage) Thread.sleep(350);
+                    while(ServerListener.incomingMessage) Thread.sleep(350);
                     LoginForm.instance.getMessages(new String[]{"get",""+getLastID()});
                     MessageList.renew(LoginForm.getUser());
                     Thread.sleep(350);

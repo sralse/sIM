@@ -60,6 +60,7 @@ public class Communication extends Thread {
             //TODO check for a sent message.
 
         }
+        Server.warn("SQL Thread stopped");
     }
 
     public static void makeDatabase(Statement st) throws SQLException {
@@ -117,5 +118,9 @@ public class Communication extends Thread {
                 +activated+", "
                 +privileges+");");
 
+    }
+
+    public static void close() throws SQLException {
+        con.close();
     }
 }

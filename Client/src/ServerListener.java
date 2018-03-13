@@ -4,13 +4,13 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 
-public class BClientListener extends Thread {
+public class ServerListener extends Thread {
 
     private BufferedReader server;
     private LoginForm client;
     protected static boolean incomingMessage = false;
 
-    public BClientListener(LoginForm client, BufferedReader out) {
+    public ServerListener(LoginForm client, BufferedReader out) {
         this.client = client;
         this.server = out;
     }

@@ -10,6 +10,7 @@ public class MessageList {
     private static ArrayList<String> users = new ArrayList<>();
     private static boolean init = false;
     public static int lastLineCount = 0, lastOveralID;
+    private static Integer lastMSGID;
 
     public MessageList(String user) {
         this.user = user;
@@ -30,12 +31,12 @@ public class MessageList {
 
     public static void loadUsers() {
         try {
-            if(LoginForm.DEBUG) System.out.println("Loading Messages...");
+            if(Console.debug) System.out.println("Loading Messages...");
             Thread.sleep(1000);
-            FileInputStream fs = new FileInputStream(LoginForm.path+ LoginForm.log);
+            FileInputStream fs = new FileInputStream(Console.logfile);
             BufferedReader br = new BufferedReader(new InputStreamReader(fs));
             int i = -1;
-            String id = null, sender = null, receiver = null, s, progUser = LoginForm.getUser();
+            String id = null, sender = null, receiver = null, s, progUser = Console.user;
             while ((s = br.readLine()) != null) {
                 i++; lastLineCount++;
                 if (i==0) id = s;
@@ -84,12 +85,12 @@ public class MessageList {
     public static void init() {
         if (init) return;
         System.out.println("Loading conversations...");
-        while(LoginForm.instance == null) try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        LoginForm.instance.getMessages(new String[]{"renew"});
+//        while(Client.console.instance == null) try {
+//            Thread.sleep(100);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//        LoginForm.instance.getMessages(new String[]{"renew"});
         while(ServerListener.incomingMessage) ;
         loadUsers();
         System.out.println("Loaded MessagesList, amount of conversations: " + usersCollection.size());
@@ -97,12 +98,12 @@ public class MessageList {
         new Thread(() -> {
             try {
                 Thread.sleep(1000);
-                while (true) {
-                    while(ServerListener.incomingMessage) Thread.sleep(350);
-                    LoginForm.instance.getMessages(new String[]{"get",""+getLastID()});
-                    MessageList.renew(LoginForm.getUser());
-                    Thread.sleep(350);
-                }
+//                while (true) {
+//                    while(ServerListener.incomingMessage) Thread.sleep(350);
+//                    LoginForm.instance.getMessages(new String[]{"get",""+getLastID()});
+//                    MessageList.renew(LoginForm.getUser());
+//                    Thread.sleep(350);
+//                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } finally {
@@ -128,30 +129,30 @@ public class MessageList {
     }
 
     public synchronized static void renew(String user) {
-        try {
-            FileInputStream fs = new FileInputStream(LoginForm.path+ LoginForm.log);
-            BufferedReader br = new BufferedReader(new InputStreamReader(fs));
-            while (!br.ready());
-            int i = -1, j = 0;
-            String id = null, sender = null, receiver = null, s;
-            while ((s = br.readLine()) != null) {
-                j++;
-                if (j>lastLineCount) {
-                    i++;
-                    if (i==0) id = s;
-                    if (i==1) sender = s;
-                    if (i==2) receiver = s;
-                    if (i==3) {
-                        add(user,id,sender,receiver,s);
-                        i = -1;
-                    }
-                }
-            }
-            br.close();
-            fs.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            FileInputStream fs = new FileInputStream(LoginForm.path+ LoginForm.log);
+//            BufferedReader br = new BufferedReader(new InputStreamReader(fs));
+//            while (!br.ready());
+//            int i = -1, j = 0;
+//            String id = null, sender = null, receiver = null, s;
+//            while ((s = br.readLine()) != null) {
+//                j++;
+//                if (j>lastLineCount) {
+//                    i++;
+//                    if (i==0) id = s;
+//                    if (i==1) sender = s;
+//                    if (i==2) receiver = s;
+//                    if (i==3) {
+//                        add(user,id,sender,receiver,s);
+//                        i = -1;
+//                    }
+//                }
+//            }
+//            br.close();
+//            fs.close();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 
     private static void add(String progUser, String id, String sender, String receiver, String msg) {
@@ -171,5 +172,13 @@ public class MessageList {
             msglist.add(new Message(id,sender,receiver,msg));
             usersCollection.add(msglist);
         }
+    }
+
+    public static void setLastMSGID(Integer lastMSGID) {
+        MessageList.lastMSGID = lastMSGID;
+    }
+
+    public static boolean getLastMSGID() {
+        return false;
     }
 }

@@ -6,33 +6,30 @@ import java.nio.charset.Charset;
 
 public class ServerListener extends Thread {
 
-    private BufferedReader server;
-    private LoginForm client;
     protected static boolean incomingMessage = false;
+    private BufferedReader server;
 
-    public ServerListener(LoginForm client, BufferedReader out) {
-        this.client = client;
-        this.server = out;
+    public ServerListener(BufferedReader server) {
+        this.server = server;
     }
 
     public void run() {
         try {
             String serverInput, sender = null, receiver = null, message= null;
-            while(client.isRunning() && (serverInput = server.readLine()) != null) {
+            while((serverInput = server.readLine()) != null) {
                 String args[] = serverInput.split(" ");
                 if(incomingMessage) {
-                    if (client.isDebugEnabled()) System.out.println("GET: "+serverInput);
+                    if (Console.debug) System.out.println("GET: "+serverInput);
                     if (args[0].equals("sender")) sender = args[1];
                     if (args[0].equals("receiver")) receiver = args[1];
                     if (args[0].equals("message")) message = serverInput.substring("message".length()+1,serverInput.length());
                     if (args[0].equals("end")) {
-                        File file =new File(client.getLogPath());
+                        File file =new File(Console.logfile);
                         if(!file.exists()) file.createNewFile();
                         FileWriter fw;
-                        if (client.APPEND) fw = new FileWriter(file, true);
-                        else fw = new FileWriter(file);
+                        fw = new FileWriter(file);
                         PrintWriter pw = new PrintWriter(new BufferedWriter(fw));
-                        pw.println(client.getLastMSGID());
+                        pw.println(MessageList.getLastMSGID());
                         pw.println(sender);
                         pw.println(receiver);
                         pw.println(fromHex(message));
@@ -40,11 +37,11 @@ public class ServerListener extends Thread {
                         incomingMessage = false;
                     }
                 } else if(args[0].equals("token")) {
-                    client.setToken(args[1]);
+                    Console.setToken(args[1]);
                     System.out.println("Server > " + serverInput);
                 } else if(args[0].equals("compose")) {
-                    client.setLastMSGID(Integer.valueOf(args[2]));
-                    System.out.println("Incoming message ID: " + client.getLastMSGID());
+                    MessageList.setLastMSGID(Integer.valueOf(args[2]));
+                    System.out.println("Incoming message ID: " + MessageList.getLastMSGID());
                     incomingMessage = true; //tepels
                 }
             }

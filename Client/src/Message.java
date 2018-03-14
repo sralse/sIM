@@ -27,12 +27,13 @@ public class Message {
     }
 
     public String composeMessage() {
-        if(LoginForm.getUser().equals(sender))
-            return "<b bgcolor=" + colorBG + " color=" + colorSenderFG + "> " + sender + " :</b>" +
-                    "<font bgcolor=" + colorBG + " color=" + colorReceiverText + "> " + message + " </font><br>";
-        else
-            return "<b bgcolor=" + colorBG + " color=" + colorReceiverFG + "> " + sender + " :</b>" +
-                    "<font  bgcolor=" + colorBG + " color=" + colorSenderText + "> " + message + " </font><br>";
-
+//        if(LoginForm.getUser().equals(sender))
+//            return "<b bgcolor=" + colorBG + " color=" + colorSenderFG + "> " + sender + " :</b>" +
+//                    "<font bgcolor=" + colorBG + " color=" + colorReceiverText + "> " + message + " </font><br>";
+//        else
+//            return "<b bgcolor=" + colorBG + " color=" + colorReceiverFG + "> " + sender + " :</b>" +
+//                    "<font  bgcolor=" + colorBG + " color=" + colorSenderText + "> " + message + " </font><br>";
+        return "";
+//
     }
 }

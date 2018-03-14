@@ -1,41 +1,159 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
+@SuppressWarnings("unused")
 public class Client {
+    private static volatile Console console;
+    public static volatile Client client = null;
+    private static volatile JFrame frame = null;
     private JPanel panel1;
     private JPanel panelLogin;
-    private JTabbedPane tabbedPane1;
+    private JTextPane textPane1;
     private JPanel paneLogin;
+    private JPanel paneChat;
     private JPanel paneRegister;
+    private JTabbedPane tabbedPane1;
+    private JTextField textField1;
+    private JTextField txtFieldRegisterUser;
+    private JTextField txtFieldRegisterEmail;
+    private JButton sendButton;
+    private JButton btnRegister;
     private JButton btnLogin;
+    private JPasswordField passwordField1;
+    private JPasswordField pwFieldRegister;
     private JPasswordField pwFieldUserPassword;
     private JTextField txtFieldUser;
     private JTextField txtFieldServer;
     private JTextField txtFieldLogFile;
-    private JButton btnRegister;
-    private JCheckBox checkBoxConfrim;
-    private JPasswordField passwordField2;
-    private JPasswordField passwordField3;
-    private JTextField textField4;
-    private JTextField textField5;
     private JLabel lblSttxt;
     private JLabel lblLogFile;
     private JLabel lblServer;
     private JLabel lblPassword;
     private JLabel lblUser;
-    private JLabel lblRegisterUser;
-    private JLabel lblRegisterEmail;
-    private JLabel lblRegisterPassword;
-    private JLabel lblRegisterPasswordConfirm;
-    private JSpinner spinner1;
     private JLabel lblPort;
-    private JPanel paneChat;
-    private JTextPane textPane1;
-    private JButton button1;
-    private JTextField textField1;
-    private JList listUsers;
-    private JProgressBar progressBar1;
     private JLabel lblStatus;
+    private JLabel lblMailUser;
+    private JLabel lblPAssword;
+    private JLabel lblUserMail;
+    private JLabel lblConfirmPW;
+    private JList listUsers;
+    private JSpinner spinner1;
+    private JCheckBox checkBox1;
+    private JProgressBar progressBar1;
+
+    private Dimension
+            currentSize = new Dimension(300,330),
+            sizeLogin = new Dimension(300, 330),
+            sizeRegister = new Dimension(300, 360),
+            sizeChat = new Dimension(750, 400);
+    private static int
+            loadingMax,
+            loadingStatus = 0,
+            loadingAddition = 1;
+
+    public static void main(String[] args) {
+        // Set the UI to look like Windows
+        try {
+            UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+        } catch (ClassNotFoundException | InstantiationException | UnsupportedLookAndFeelException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        // Init our Frame
+        frame = new JFrame("Client");
+        frame.setContentPane(new Client().panel1);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        frame.pack();
+        frame.setVisible(true);
+        // Ensure we have a console object
+        console = new Console(args);
+    }
+
+    private Client() {
+        // Declare our client and frame
+        client = this;
+        // Center frame
+        centerFrame();
+        // Action listeners
+        btnLogin.addActionListener(e -> login());
+        checkBox1.addActionListener(e -> btnRegister.setEnabled(checkBox1.isSelected()));
+        txtFieldUser.addActionListener(e -> pwFieldUserPassword.requestFocus());
+        pwFieldUserPassword.addActionListener(e -> login());
+
+    }
+
+    private void login() {
+        // Set our console variables
+        console.user = txtFieldUser.getText();
+        console.userpass = Security.mda5(String.valueOf(pwFieldUserPassword.getPassword()));
+        console.host = txtFieldServer.getText();
+        console.logfile = txtFieldLogFile.getText();
+        console.port = ""+spinner1.getValue();
+        console.login();
+    }
+
+    public void enableChat() {
+        tabbedPane1.setEnabledAt(2,true);
+        tabbedPane1.setSelectedIndex(2);
+        resize(sizeChat);
+    }
+
+    public void setStatus(String s, boolean error) {
+        lblStatus.setText(s);
+        if (error) {
+            lblStatus.setForeground(Color.red);
+            console.error(s, false);
+        }
+        else {
+            lblStatus.setForeground(Color.black);
+            console.log(s);
+        }
+        repack();
+    }
+
+    public void setLoading(int i) {
+        loadingMax = i;
+        loadingStatus = 0;
+        progressBar1.setMaximum(loadingMax);
+    }
+
+    public void setLoadingAdd(int i) {
+        loadingAddition = i;
+    }
+
+    public void addLoading() {
+        loadingStatus = progressBar1.getValue() + loadingAddition;
+        progressBar1.setValue(loadingStatus);
+    }
+
+    public void addLoading(int i) {
+        loadingStatus = progressBar1.getValue() + i;
+        progressBar1.setValue(loadingStatus);
+    }
+
+    /** Given dimension this will resize the current frame and center it */
+    private void resize(Dimension d) {
+        if (d == null) { Console.warn("Cannot set size not null."); return; }
+        currentSize = d;
+        frame.setPreferredSize(currentSize);
+        panel1.setPreferredSize(currentSize);
+        panelLogin.setPreferredSize(currentSize);
+        tabbedPane1.setPreferredSize(currentSize);
+        centerFrame();
+    }
+
+    /** This function can be used to center our frame */
+    private void centerFrame() {
+        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+        frame.setLocation(dim.width / 2 - frame.getSize().width / 2, dim.height / 2 - frame.getSize().height / 2);
+        repack();
+    }
+
+    private void repack() {
+        frame.pack();
+        frame.setVisible(true);
+    }
 
     {
 // GUI initializer generated by IntelliJ IDEA GUI Designer
@@ -49,7 +167,7 @@ public class Client {
      * >>> IMPORTANT!! <<<
      * DO NOT edit this method OR call it in your code!
      *
-     * @noinspection ALL
+     * @noinspect ALL
      */
     private void $$$setupUI$$$() {
         panel1 = new JPanel();
@@ -140,7 +258,7 @@ public class Client {
         gbc.gridy = 9;
         gbc.fill = GridBagConstraints.VERTICAL;
         paneLogin.add(spacer2, gbc);
-        spinner1 = new JSpinner();
+        spinner1 = new JSpinner(new SpinnerNumberModel(45459, 1, 65535, 1));
         gbc = new GridBagConstraints();
         gbc.gridx = 2;
         gbc.gridy = 6;
@@ -191,69 +309,52 @@ public class Client {
         gbc.gridy = 10;
         gbc.fill = GridBagConstraints.VERTICAL;
         paneRegister.add(spacer5, gbc);
-        checkBoxConfrim = new JCheckBox();
-        checkBoxConfrim.setText("I am not a robot and accept te terms of service.");
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 8;
         gbc.anchor = GridBagConstraints.WEST;
-        paneRegister.add(checkBoxConfrim, gbc);
-        passwordField2 = new JPasswordField();
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 7;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        paneRegister.add(passwordField2, gbc);
-        passwordField3 = new JPasswordField();
+        pwFieldRegister = new JPasswordField();
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 5;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        paneRegister.add(passwordField3, gbc);
-        textField4 = new JTextField();
+        paneRegister.add(pwFieldRegister, gbc);
+        txtFieldRegisterEmail = new JTextField();
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 3;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        paneRegister.add(textField4, gbc);
-        textField5 = new JTextField();
+        paneRegister.add(txtFieldRegisterEmail, gbc);
+        txtFieldRegisterUser = new JTextField();
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        paneRegister.add(textField5, gbc);
-        lblRegisterUser = new JLabel();
-        lblRegisterUser.setText("Username:");
+        paneRegister.add(txtFieldRegisterUser, gbc);
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.WEST;
-        paneRegister.add(lblRegisterUser, gbc);
-        lblRegisterEmail = new JLabel();
-        lblRegisterEmail.setText("Email:");
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 2;
         gbc.anchor = GridBagConstraints.WEST;
-        paneRegister.add(lblRegisterEmail, gbc);
-        lblRegisterPassword = new JLabel();
-        lblRegisterPassword.setText("Password:");
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 4;
         gbc.anchor = GridBagConstraints.WEST;
-        paneRegister.add(lblRegisterPassword, gbc);
-        lblRegisterPasswordConfirm = new JLabel();
-        lblRegisterPasswordConfirm.setText("Confirm Password:");
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 6;
         gbc.anchor = GridBagConstraints.WEST;
-        paneRegister.add(lblRegisterPasswordConfirm, gbc);
         lblSttxt = new JLabel();
         lblSttxt.setText("Status:");
         panelLogin.add(lblSttxt, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));

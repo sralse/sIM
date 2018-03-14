@@ -107,14 +107,16 @@ public class ClientListener extends Thread {
     }
 
     public void getClientInfo(Statement st) throws SQLException {
-        ResultSet rs = st.executeQuery("SELECT sessionKey FROM users " +
-                "WHERE sessionKey = '" + token + "';");
-        if(!rs.next()) return;
-        if(clientName == null) {
-            rs = st.executeQuery("SELECT userName FROM users" +
-                    " WHERE sessionKey = '"+token+"';");
-            if(rs.next()) clientName = rs.getString(1);
-        }
+        if(st.isPoolable()) {
+            ResultSet rs = st.executeQuery("SELECT sessionKey FROM users " +
+                    "WHERE sessionKey = '" + token + "';");
+            if (!rs.next()) return;
+            if (clientName == null) {
+                rs = st.executeQuery("SELECT userName FROM users" +
+                        " WHERE sessionKey = '" + token + "';");
+                if (rs.next()) clientName = rs.getString(1);
+            }
+        } else Server.error("Server not poolable", true);
     }
 
     public static String toHex(String text) throws UnsupportedEncodingException

@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -6,6 +7,9 @@ public class Client extends Thread{
 
     public static volatile PrintWriter out;
     private Socket client;
+    private JPanel panelLogin;
+    private JPanel panelRegister;
+    private JPanel panelChat;
 
     public Client(Socket client) {
         this.client = client;

@@ -1,5 +1,10 @@
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.math.BigInteger;
 import java.net.*;
@@ -11,6 +16,7 @@ public class LoginForm {
     private final Dimension size1 = new Dimension(225, 350);
     private final Dimension size2 = new Dimension(225, 450);
     private final Dimension size3 = new Dimension(600, 500);
+    private final Dimension size4 = new Dimension(225, 350);
     private int width, height;
     private JFrame frame;
     private JPanel panel;
@@ -40,6 +46,7 @@ public class LoginForm {
     private JTextField txtFieldEmail;
     private JPasswordField passwordField;
     private JCheckBox confirm;
+    private JButton backButton;
     private static boolean advanced = false, running = true;
     private static boolean GUI = true;
     public static String
@@ -79,6 +86,8 @@ public class LoginForm {
             else if (s.equals("-pw") && args.length > i + 1) arguments[4] = args[i + 1];
         }
 
+        new Client();
+
         System.out.println("DEBUG: " + DEBUG + " OFFLINE-MODE: " + OFFLINE);
         new LoginForm();
 
@@ -106,7 +115,18 @@ public class LoginForm {
             server.setText(host + ":" + port);
 //            chatPanel.setVisible(false);
             // Actionlisteners
-            register.addActionListener(e -> openWebpage("http://" + getServer() + "/register.php"));
+            register.addActionListener(e -> {
+                loginPanel.setVisible(false);
+                panel.setPreferredSize(size4);
+                registerPanel.setVisible(true);
+                registerPanel.setPreferredSize(size4);
+                frame.setContentPane(panel);
+                frame.setPreferredSize(size4);
+                frame.pack();
+                frame.setVisible(true);
+                centerFrame(frame);
+                registerPanel.requestFocus();
+            });
             other.addActionListener(e -> {
                 if (advanced) setAdvanced(false);
                 else setAdvanced(true);
@@ -136,6 +156,24 @@ public class LoginForm {
             logfile.setText(arguments[2]);
         }
         start(); // Starts console or GUI depending on arguments.
+        confirm.addItemListener(evt -> {
+            System.out.println(confirm.isSelected());
+            if (confirm.isSelected()) btnRegister.setEnabled(true);
+            else btnRegister.setEnabled(false);
+        });
+        backButton.addActionListener(e -> {
+            registerPanel.setVisible(false);
+            panel.setPreferredSize(size1);
+            loginPanel.setVisible(true);
+            loginPanel.setPreferredSize(size1);
+            frame.setContentPane(panel);
+            frame.setPreferredSize(size1);
+            frame.pack();
+            frame.setVisible(true);
+            centerFrame(frame);
+            loginPanel.requestFocus();
+
+        });
     }
 
     private void messageSend() {
@@ -583,7 +621,7 @@ public class LoginForm {
      */
     private void $$$setupUI$$$() {
         panel = new JPanel();
-        panel.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
+        panel.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(3, 1, new Insets(0, 0, 0, 0), -1, -1));
         panel.setAlignmentX(0.0f);
         panel.setAlignmentY(0.0f);
         panel.setBackground(new Color(-16777216));
@@ -630,12 +668,15 @@ public class LoginForm {
         username.setHorizontalAlignment(0);
         loginPanel.add(username, new com.intellij.uiDesigner.core.GridConstraints(4, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         login = new JButton();
+        login.setBackground(new Color(-15132391));
         login.setText("Login");
         loginPanel.add(login, new com.intellij.uiDesigner.core.GridConstraints(11, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, new Dimension(100, -1), new Dimension(120, 20), new Dimension(140, -1), 0, false));
         register = new JButton();
+        register.setBackground(new Color(-15132391));
         register.setText("Register");
         loginPanel.add(register, new com.intellij.uiDesigner.core.GridConstraints(13, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, new Dimension(100, -1), new Dimension(120, 20), new Dimension(140, -1), 0, false));
         other = new JButton();
+        other.setBackground(new Color(-15132391));
         other.setText("Show Advanced");
         loginPanel.add(other, new com.intellij.uiDesigner.core.GridConstraints(15, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, new Dimension(100, -1), new Dimension(120, 20), new Dimension(140, -1), 0, false));
         logfileLabel = new JLabel();
@@ -675,21 +716,22 @@ public class LoginForm {
         final com.intellij.uiDesigner.core.Spacer spacer12 = new com.intellij.uiDesigner.core.Spacer();
         loginPanel.add(spacer12, new com.intellij.uiDesigner.core.GridConstraints(19, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_VERTICAL, 1, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, new Dimension(-1, 3), null, new Dimension(-1, 3), 0, false));
         chatPanel = new JPanel();
-        chatPanel.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(3, 3, new Insets(5, 5, 5, 5), -1, -1));
+        chatPanel.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(4, 3, new Insets(5, 5, 5, 5), -1, -1));
         chatPanel.setBackground(new Color(-16250872));
         chatPanel.setForeground(new Color(-11316397));
+        chatPanel.setVisible(true);
         panel.add(chatPanel, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, 1, new Dimension(600, 400), null, new Dimension(600, 400), 0, false));
         textFieldChat = new JTextField();
         textFieldChat.setForeground(new Color(-11316397));
         textFieldChat.setText("");
-        chatPanel.add(textFieldChat, new com.intellij.uiDesigner.core.GridConstraints(2, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        chatPanel.add(textFieldChat, new com.intellij.uiDesigner.core.GridConstraints(3, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         buttonSendMessage = new JButton();
         buttonSendMessage.setText("send");
-        chatPanel.add(buttonSendMessage, new com.intellij.uiDesigner.core.GridConstraints(2, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        chatPanel.add(buttonSendMessage, new com.intellij.uiDesigner.core.GridConstraints(3, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JScrollPane scrollPane1 = new JScrollPane();
         scrollPane1.setBackground(new Color(-16777216));
         scrollPane1.setForeground(new Color(-11316397));
-        chatPanel.add(scrollPane1, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 2, 2, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        chatPanel.add(scrollPane1, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 3, 2, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         textPaneChat = new JTextPane();
         textPaneChat.setBackground(new Color(-16777216));
         textPaneChat.setContentType("text/html");
@@ -699,12 +741,74 @@ public class LoginForm {
         scrollPane1.setViewportView(textPaneChat);
         buttonSendNewUser = new JButton();
         buttonSendNewUser.setText("Compose new message");
-        chatPanel.add(buttonSendNewUser, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        chatPanel.add(buttonSendNewUser, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JScrollPane scrollPane2 = new JScrollPane();
+        scrollPane2.setForeground(new Color(-15463393));
+        chatPanel.add(scrollPane2, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 3, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        scrollPane2.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color(-15461345)), "Conversations", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, new Color(-4473925)));
         listUsers = new JList();
         listUsers.setBackground(new Color(-15132391));
         listUsers.setForeground(new Color(-11316397));
         listUsers.setSelectionMode(0);
-        chatPanel.add(listUsers, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 2, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, 50), null, 0, false));
+        scrollPane2.setViewportView(listUsers);
+        registerPanel = new JPanel();
+        registerPanel.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(13, 3, new Insets(5, 5, 5, 5), -1, -1));
+        registerPanel.setBackground(new Color(-15132391));
+        panel.add(registerPanel, new com.intellij.uiDesigner.core.GridConstraints(2, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, 1, new Dimension(200, 350), null, new Dimension(200, 350), 0, false));
+        btnRegister = new JButton();
+        btnRegister.setBackground(new Color(-15132391));
+        btnRegister.setEnabled(false);
+        btnRegister.setText("Register");
+        registerPanel.add(btnRegister, new com.intellij.uiDesigner.core.GridConstraints(11, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_NORTH, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final com.intellij.uiDesigner.core.Spacer spacer13 = new com.intellij.uiDesigner.core.Spacer();
+        registerPanel.add(spacer13, new com.intellij.uiDesigner.core.GridConstraints(12, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_VERTICAL, 1, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(-1, 20), null, 0, false));
+        final com.intellij.uiDesigner.core.Spacer spacer14 = new com.intellij.uiDesigner.core.Spacer();
+        registerPanel.add(spacer14, new com.intellij.uiDesigner.core.GridConstraints(11, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        final com.intellij.uiDesigner.core.Spacer spacer15 = new com.intellij.uiDesigner.core.Spacer();
+        registerPanel.add(spacer15, new com.intellij.uiDesigner.core.GridConstraints(11, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        textFieldUsername = new JTextField();
+        textFieldUsername.setForeground(new Color(-986896));
+        textFieldUsername.setMargin(new Insets(0, 0, 0, 0));
+        textFieldUsername.setText("");
+        registerPanel.add(textFieldUsername, new com.intellij.uiDesigner.core.GridConstraints(2, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        txtFieldEmail = new JTextField();
+        txtFieldEmail.setForeground(new Color(-986896));
+        txtFieldEmail.setMargin(new Insets(0, 0, 0, 0));
+        registerPanel.add(txtFieldEmail, new com.intellij.uiDesigner.core.GridConstraints(4, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        passwordField = new JPasswordField();
+        passwordField.setForeground(new Color(-986896));
+        passwordField.setMargin(new Insets(0, 0, 0, 0));
+        registerPanel.add(passwordField, new com.intellij.uiDesigner.core.GridConstraints(6, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        confirm = new JCheckBox();
+        confirm.setBackground(new Color(-15132391));
+        confirm.setForeground(new Color(-986896));
+        confirm.setSelected(false);
+        confirm.setText("Yes, I have read and accept.");
+        registerPanel.add(confirm, new com.intellij.uiDesigner.core.GridConstraints(9, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_NORTH, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        final com.intellij.uiDesigner.core.Spacer spacer16 = new com.intellij.uiDesigner.core.Spacer();
+        registerPanel.add(spacer16, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_VERTICAL, 1, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(-1, 20), null, 0, false));
+        final JLabel label1 = new JLabel();
+        label1.setForeground(new Color(-986896));
+        label1.setText("Email Adress");
+        registerPanel.add(label1, new com.intellij.uiDesigner.core.GridConstraints(1, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label2 = new JLabel();
+        label2.setForeground(new Color(-986896));
+        label2.setText("Username");
+        registerPanel.add(label2, new com.intellij.uiDesigner.core.GridConstraints(3, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label3 = new JLabel();
+        label3.setForeground(new Color(-986896));
+        label3.setText("Password");
+        registerPanel.add(label3, new com.intellij.uiDesigner.core.GridConstraints(5, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label4 = new JLabel();
+        label4.setForeground(new Color(-986896));
+        label4.setText("Do you accept our agreement?");
+        registerPanel.add(label4, new com.intellij.uiDesigner.core.GridConstraints(8, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final com.intellij.uiDesigner.core.Spacer spacer17 = new com.intellij.uiDesigner.core.Spacer();
+        registerPanel.add(spacer17, new com.intellij.uiDesigner.core.GridConstraints(7, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_VERTICAL, 1, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(-1, 20), null, 0, false));
+        backButton = new JButton();
+        backButton.setBackground(new Color(-14737633));
+        backButton.setText("Back to login");
+        registerPanel.add(backButton, new com.intellij.uiDesigner.core.GridConstraints(10, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**

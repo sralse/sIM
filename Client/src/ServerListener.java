@@ -19,7 +19,7 @@ public class ServerListener extends Thread {
             while((serverInput = server.readLine()) != null) {
                 String args[] = serverInput.split(" ");
                 if(incomingMessage) {
-                    if (Console.debug) System.out.println("GET: "+serverInput);
+                    if (Console.debug) Console.debug("GET: "+serverInput);
                     if (args[0].equals("sender")) sender = args[1];
                     if (args[0].equals("receiver")) receiver = args[1];
                     if (args[0].equals("message")) message = serverInput.substring("message".length()+1,serverInput.length());
@@ -34,14 +34,15 @@ public class ServerListener extends Thread {
                         pw.println(receiver);
                         pw.println(fromHex(message));
                         pw.close();
+                        MessageList.addMessage(MessageList.getLastMSGID(), sender, receiver, fromHex(message));
                         incomingMessage = false;
                     }
                 } else if(args[0].equals("token")) {
                     Console.setToken(args[1]);
-                    System.out.println("Server > " + serverInput);
+                    Console.debug("Server > " + serverInput);
                 } else if(args[0].equals("compose")) {
                     MessageList.setLastMSGID(Integer.valueOf(args[2]));
-                    System.out.println("Incoming message ID: " + MessageList.getLastMSGID());
+                    Console.debug("Incoming message ID: " + MessageList.getLastMSGID());
                     incomingMessage = true; //tepels
                 }
             }

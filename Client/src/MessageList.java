@@ -4,7 +4,10 @@ import java.util.ArrayList;
 public class MessageList {
 
     private ArrayList<Message> messageCollection = new ArrayList<>();
-    private String user;
+    private static String user,
+            talkingWith,
+            messageBody = "<html><body style=\"font-family: sans-serif;\">",
+            messageBodyEnd = "</body></html>";
     private int lastID;
     private static ArrayList<MessageList> usersCollection = new ArrayList<>();
     private static ArrayList<String> users = new ArrayList<>();
@@ -27,6 +30,10 @@ public class MessageList {
     private void add(Message message) {
         messageCollection.add(message);
         if (message.getMessageID() > lastID) setLastID(message.getMessageID());
+    }
+
+    public ArrayList<Message> getList() {
+        return messageCollection;
     }
 
     public static void loadUsers() {
@@ -54,10 +61,6 @@ public class MessageList {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-    }
-
-    public ArrayList<Message> getList() {
-        return messageCollection;
     }
 
     public static MessageList getLastUser() {
@@ -91,28 +94,45 @@ public class MessageList {
 //            e.printStackTrace();
 //        }
 //        LoginForm.instance.getMessages(new String[]{"renew"});
-        while(ServerListener.incomingMessage) ;
-        loadUsers();
-        System.out.println("Loaded MessagesList, amount of conversations: " + usersCollection.size());
+        while (ServerListener.incomingMessage) ;
 
-        new Thread(() -> {
-            try {
-                Thread.sleep(1000);
+        loadUsers();
+        Console.log("Loaded MessagesList, amount of conversations: " + usersCollection.size());
+
+    }
+
+        private String formMessages() {
+            String document = "";
+            //getMessages(new String[]{"renew"});
+            //MessageList.init();
+            //listUsers.setListData(MessageList.getCollection().toArray());
+            MessageList list = MessageList.getLastUser();
+            talkingWith = list.getUser();
+            System.out.println("Last talked to user: " + talkingWith + " amount of messages: " + list.getList().size());
+            for (Message msg : list.getList()) messageBody += msg.composeMessage();
+            document = messageBody + messageBodyEnd;
+            return document;
+            //textPaneChat.setText(document);
+        }
+
+//        new Thread(() -> {
+//            try {
+//                Thread.sleep(1000);
 //                while (true) {
 //                    while(ServerListener.incomingMessage) Thread.sleep(350);
 //                    LoginForm.instance.getMessages(new String[]{"get",""+getLastID()});
 //                    MessageList.renew(LoginForm.getUser());
 //                    Thread.sleep(350);
 //                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } finally {
-                System.err.println("Receiver Thread has stopped.");
-            }
-        }).start();
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            } finally {
+//                System.err.println("Receiver Thread has stopped.");
+//            }
+//        }).start();
 
-        init = true;
-    }
+//        init = true;
+//    }
 
     public String getUser() {
         return user;
@@ -176,9 +196,15 @@ public class MessageList {
 
     public static void setLastMSGID(Integer lastMSGID) {
         MessageList.lastMSGID = lastMSGID;
+
     }
 
     public static boolean getLastMSGID() {
         return false;
+    }
+
+    public static void addMessage(boolean lastMSGID, String sender, String receiver, String msg) {
+        // todo add message
+        Console.debug("Adding message...");
     }
 }

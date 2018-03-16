@@ -42,6 +42,8 @@ public class Client {
     private JSpinner spinner1;
     private JCheckBox checkBox1;
     private JProgressBar progressBar1;
+    private JTextField textField2;
+    private JButton button1;
 
     private Dimension
             currentSize = new Dimension(300,330),
@@ -96,6 +98,8 @@ public class Client {
     public void enableChat() {
         tabbedPane1.setEnabledAt(2,true);
         tabbedPane1.setSelectedIndex(2);
+        tabbedPane1.setEnabledAt(0, false);
+        tabbedPane1.setEnabledAt(1, false);
         resize(sizeChat);
     }
 

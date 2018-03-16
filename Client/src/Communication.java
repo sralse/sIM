@@ -9,6 +9,7 @@ public class Communication {
     private static Socket socket;
     private static PrintWriter pw;
     private static ServerListener listener;
+    private static boolean init;
 
     public static boolean testConnection(String ip, int port, int timeout) {
         try {
@@ -54,11 +55,13 @@ public class Communication {
     }
 
     public static Socket initConnection(String host, String port) {
+        if(init) return socket;
         try {
             socket = new Socket(host, Integer.parseInt(port));
             listener = new ServerListener(new BufferedReader(new InputStreamReader(socket.getInputStream())));
             listener.start();
             pw = new PrintWriter(socket.getOutputStream(), true);
+            init = true;
             return socket;
         } catch (IOException e) {
             e.printStackTrace();

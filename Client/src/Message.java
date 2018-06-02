@@ -1,8 +1,10 @@
+
 public class Message {
     private int messageID;
     private String receiver,message,sender;
-    private String colorSenderFG = "#de1919",
-            colorBG = "#000000",
+    private String
+            colorSenderFG = "#de1919",
+            colorBG = "#e8e8e8",
             colorSenderText = "#ffffff",
             colorReceiverFG = "#44c8c8",
             colorReceiverBG = "#161616",
@@ -13,13 +15,7 @@ public class Message {
         this.sender = sender;
         this.receiver = receiver;
         this.message = message;
-    }
-
-    public Message(int messageID, String sender, String receiver, String message) {
-        this.messageID = messageID;
-        this.sender = sender;
-        this.receiver = receiver;
-        this.message = message;
+        MessageList.setLastMSGID(messageID);
     }
 
     public int getMessageID() {
@@ -27,13 +23,11 @@ public class Message {
     }
 
     public String composeMessage() {
-//        if(LoginForm.getUser().equals(sender))
-//            return "<b bgcolor=" + colorBG + " color=" + colorSenderFG + "> " + sender + " :</b>" +
-//                    "<font bgcolor=" + colorBG + " color=" + colorReceiverText + "> " + message + " </font><br>";
-//        else
-//            return "<b bgcolor=" + colorBG + " color=" + colorReceiverFG + "> " + sender + " :</b>" +
-//                    "<font  bgcolor=" + colorBG + " color=" + colorSenderText + "> " + message + " </font><br>";
-        return "";
-//
+        if(Console.user.equals(sender))
+            return "<b color=" + colorSenderFG + "> " + sender + " :</b>" +
+                    "<font> " + message + " </font><br>";
+        else
+            return "<b bgcolor=" + colorBG + " color=" + colorReceiverFG + "> " + sender + " :</b>" +
+                    "<font  bgcolor=" + colorBG + "> " + message + " </font><br>";
     }
 }

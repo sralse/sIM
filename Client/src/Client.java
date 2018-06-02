@@ -1,32 +1,29 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 @SuppressWarnings("unused")
 public class Client {
-    private static volatile Console console;
-    public static volatile Client client = null;
-    private static volatile JFrame frame = null;
+    public static Client client = null;
+    private static JFrame frame = null;
+    private static Console console = null;
     private JPanel panel1;
     private JPanel panelLogin;
-    private JTextPane textPane1;
+    public JTextPane txtPaneMessages;
     private JPanel paneLogin;
     private JPanel paneChat;
     private JPanel paneRegister;
     private JTabbedPane tabbedPane1;
-    private JTextField textField1;
+    protected JTextField txtFieldChat;
     private JTextField txtFieldRegisterUser;
     private JTextField txtFieldRegisterEmail;
     private JButton sendButton;
     private JButton btnRegister;
     private JButton btnLogin;
-    private JPasswordField passwordField1;
     private JPasswordField pwFieldRegister;
     private JPasswordField pwFieldUserPassword;
     private JTextField txtFieldUser;
-    private JTextField txtFieldServer;
-    private JTextField txtFieldLogFile;
+    public JTextField txtFieldServer;
+    public JTextField txtFieldLogFile;
     private JLabel lblSttxt;
     private JLabel lblLogFile;
     private JLabel lblServer;
@@ -37,9 +34,8 @@ public class Client {
     private JLabel lblMailUser;
     private JLabel lblPAssword;
     private JLabel lblUserMail;
-    private JLabel lblConfirmPW;
     private JList listUsers;
-    private JSpinner spinner1;
+    public JSpinner spinner1;
     private JCheckBox checkBox1;
     private JProgressBar progressBar1;
     private JTextField textField2;
@@ -78,11 +74,50 @@ public class Client {
         // Center frame
         centerFrame();
         // Action listeners
-        btnLogin.addActionListener(e -> login());
-        checkBox1.addActionListener(e -> btnRegister.setEnabled(checkBox1.isSelected()));
+        setupActionListeners();
+
+    }
+
+    private void setupActionListeners() {
+        // Login Form
         txtFieldUser.addActionListener(e -> pwFieldUserPassword.requestFocus());
         pwFieldUserPassword.addActionListener(e -> login());
+        btnLogin.addActionListener(e -> login());
+        // Register Form
+        txtFieldRegisterUser.addActionListener(e -> txtFieldRegisterEmail.requestFocus());
+        txtFieldRegisterEmail.addActionListener(e -> pwFieldRegister.requestFocus());
+        pwFieldRegister.addCaretListener(e -> checkCheckBox());
+        checkBox1.addActionListener(e -> checkRegisterButton());
+        btnRegister.addActionListener(e -> register());
+        // Chat Form
+        txtFieldChat.addActionListener(e -> sendChat());
 
+    }
+
+    private void sendChat() {
+        //MessageList.addLocal(txtFieldChat.getText());
+        Communication.sendMessage(MessageList.getLastUser().getUser(), txtFieldChat.getText());
+        txtFieldChat.setText("");
+    }
+
+    private void checkRegisterButton() {
+        if(checkBox1.isSelected()) btnRegister.setEnabled(true);
+        else btnRegister.setEnabled(false);
+    }
+
+    private void checkCheckBox() {
+        if(pwFieldRegister.getPassword().length >= 4) checkBox1.setEnabled(true);
+        else checkBox1.setEnabled(false);
+    }
+
+    private void register() {
+        // Register with a new user.
+        console.register(
+                txtFieldRegisterUser.getText(),
+                txtFieldRegisterEmail.getText(),
+                pwFieldRegister.getPassword(),
+                txtFieldServer.getText(),
+                (Integer) spinner1.getValue());
     }
 
     private void login() {
@@ -100,6 +135,7 @@ public class Client {
         tabbedPane1.setSelectedIndex(2);
         tabbedPane1.setEnabledAt(0, false);
         tabbedPane1.setEnabledAt(1, false);
+        txtFieldChat.requestFocus();
         resize(sizeChat);
     }
 
@@ -150,7 +186,9 @@ public class Client {
     /** This function can be used to center our frame */
     private void centerFrame() {
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-        frame.setLocation(dim.width / 2 - frame.getSize().width / 2, dim.height / 2 - frame.getSize().height / 2);
+        frame.setLocation(
+                (dim.width / 2) - (frame.getSize().width * 2),
+                (dim.height / 2) - (frame.getSize().height / 2));
         repack();
     }
 

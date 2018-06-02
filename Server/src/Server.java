@@ -45,6 +45,9 @@ public class Server {
             }
             i++;
         }
+        debug("ENABLED - Server started with arguments:" +
+                " db_host="+sqlHost+" db_name="+sqlDatabase+
+                " db_user="+sqlUser+" Port="+serverPort);
         startSQLCommunication();
         startConsole();
         startListener();

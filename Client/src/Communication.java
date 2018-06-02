@@ -72,4 +72,35 @@ public class Communication {
     public static ServerListener getListener() {
         return listener;
     }
+
+    public static void register(String user, String email, String s) {
+        if (pw != null) {
+            String pass = Security.mda5(s);
+            Console.log("Registering user: " + user + " email: " + email + " pass: " + pass);
+            pw.println("register " + user + " " + email + " " + pass);
+        } else Console.error("Could not get PrintWriter.",false);
+    }
+
+    // Returns state of connection
+    public static boolean testConnection() {
+        if (socket == null) return false;
+        if(!socket.isConnected()) return false;
+        return !socket.isClosed();
+    }
+
+    public static void getMessages() {
+        if(!init) return;
+        pw.println("get "+Console.token);
+        try {
+            Thread.sleep(1000);
+            while(listener.incomingMessage) Thread.sleep(10);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void sendMessage(String text, String receiver) {
+        // TODO Add message to messagelist
+        pw.println("say "+Console.token+" "+receiver+" "+text);
+    }
 }

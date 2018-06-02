@@ -55,8 +55,8 @@ public class ClientListener extends Thread {
                 } else if (args[0].equals("say") && args.length > 3) {
                     if (token == null) token = args[1];
                     getClientInfo(st);
-                    rs = st.executeQuery("SELECT userName FROM users " +
-                            "WHERE userName = '" + args[2] + "';");
+                    rs = st.executeQuery("SELECT * FROM users " +
+                            "WHERE userName = '" + args[1] + "';");
                     if(rs.next()) {
                         // Here we handle our sending of a message.
                         Server.log("Sending message to: " + args[2]);
@@ -94,12 +94,31 @@ public class ClientListener extends Thread {
                         Server.warn(System.currentTimeMillis() + " > User not found.");
                         return;
                     }
+                } else if (args[0].equals("register") && (args.length == 4)) {
+                    String newUser = args[1];
+                    String newUserMail = args[2];
+                    String pw = args[3];
+                    rs = st.executeQuery("SELECT * FROM users WHERE " +
+                            "emailAdress = '"+newUserMail+"' OR userName='"+newUser+"' LIMIT 1;");
+                    if(rs.next() || !newUserMail.contains("@")) {
+                        out.println("fail");
+                        Server.log("Registering failed. ");
+                        Server.debug("===ACCOUNT INFO BEGIN===");
+                        Server.debug("Row level="+rs.getRow());
+                        for(int i = 1; i < 7; i++) Server.debug(rs.getString(i));
+                        Server.debug("===ACCOUNT INFO END===");
+
+                    } else {
+                        Server.debug("Registering new user: ["+args+"]");
+                        st.executeUpdate("INSERT INTO users VALUES " +
+                                "(NULL, '"+newUser+"', '"+newUserMail+"', '"+pw+"', 0, 0, NULL);");
+                    }
                 }
                 lastTime = System.currentTimeMillis();
             }
             Server.log("Client has disconnected.");
         } catch (IOException e) {
-            Server.error("Listener thread stopped: " + e.getMessage(),e);
+            Server.error("Listener thread stopped: "+e.getLocalizedMessage(),e);
         } catch (SQLException e) {
             Server.error("SQL ERROR.",e);
             e.printStackTrace();

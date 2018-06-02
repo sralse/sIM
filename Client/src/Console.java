@@ -3,11 +3,12 @@ import java.net.Socket;
 public class Console {
     protected static boolean debug = false;
     public static ServerListener sl = null;
-    private Socket ss;
+    public static boolean init;
+    private Socket ss = null;
     public static String
             user = "",
             userpass = "",
-            host = "full.sralse.xyz",
+            host = "",
             logfile = "logfile.txt",
             port = "45459",
             token = "";
@@ -24,8 +25,17 @@ public class Console {
             else if (s.equals("--debug")) debug = true;
             i++;
         }
-        Console.debug("Debug Enabled - Created console with arguments: "
-                +host+":"+port+" user="+user+" pw="+userpass+" logfile="+logfile);
+        Console.debug("ENABLED - Created console with arguments: "
+                +"host="+host+":"+port+" user="+user+" pw="+userpass+" logfile="+logfile);
+        setup();
+    }
+
+    private void setup() {
+        // Set up the textfields with the default data.
+        Client.client.spinner1.setValue(Integer.parseInt(port));
+        debug("Setting host to: "+host);
+        Client.client.txtFieldServer.setText(host);
+        Client.client.txtFieldLogFile.setText(logfile);
     }
 
     public void login() {
@@ -41,10 +51,7 @@ public class Console {
         Client.client.addLoading();
 
         // Initialize server connection
-        ss = Communication.initConnection(host, port);
-        sl = Communication.getListener();
-        if(!Communication.testConnection(ss)) {
-            Client.client.setStatus(host+":"+port+" not found.",true); return;}
+        initServerConnection(host, port);
         Client.client.addLoading();
 
         // Check if we have valid userdata
@@ -56,15 +63,19 @@ public class Console {
             Client.client.setStatus("Wrong credentials.",true);
             return;}
 
-        getAllMessages();
         // We logged in succesfully
         Client.client.setStatus("Connected succesfully.",false);
         Client.client.addLoading();
         Client.client.enableChat();
-    }
 
-    private void getAllMessages() {
+        // Get all messages
+        Client.client.setLoading(1);
+        Client.client.setStatus("Loading messages...", false);
+        MessageList.init();
 
+        Client.client.setStatus("Done.", false);
+        Client.client.addLoading();
+        Client.client.txtFieldChat.requestFocus();
     }
 
     private boolean getCredentials() {
@@ -130,5 +141,44 @@ public class Console {
         else if(error) System.err.println(System.currentTimeMillis()+" [ERROR]> "+s);
         else if(warning) System.out.println(System.currentTimeMillis()+" [WARNING]> "+s);
         else if(debug && Console.debug) System.out.println(System.currentTimeMillis()+" [DEBUG]> "+s);
+    }
+
+    public void register(String user, String email, char[] password, String text, int p) {
+        String port = String.valueOf(p);
+        // Status update
+        Client.client.setStatus("Registering...",false);
+        Client.client.setLoading(3);
+
+        // Check if we can connect (aka valid host)
+        if(!Communication.testConnection()) {
+            if (!Communication.testConnection(host, port)) {
+                Client.client.setStatus(text + ":" + port + " not found.", true);
+                return;
+            }
+            // Initialise server connection
+            initServerConnection(host, port);
+            Client.client.addLoading();
+        }
+        Client.client.setStatus("Connected to: "+text+":"+port, false);
+        Client.client.addLoading();
+
+        Communication.register(
+                user,
+                email,
+                String.valueOf(password));
+    }
+
+    private void initServerConnection(String text, String port) {
+        // Initialize server connection
+        if(ss != null && sl != null) {
+            if (ss.isConnected() && sl.isAlive()) {
+                debug("Server Socket: "+ss.isConnected()+" Server Listener: "+sl.isAlive());
+                return;
+            }
+        }
+        ss = Communication.initConnection(text, port);
+        sl = Communication.getListener();
+        if(!Communication.testConnection(ss)) {
+            Client.client.setStatus(text+":"+port+" not found.",true); return;}
     }
 }

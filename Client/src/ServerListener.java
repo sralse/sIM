@@ -8,6 +8,7 @@ public class ServerListener extends Thread {
 
     protected static boolean incomingMessage = false;
     private BufferedReader server;
+    private static String messageID;
 
     public ServerListener(BufferedReader server) {
         this.server = server;
@@ -19,30 +20,32 @@ public class ServerListener extends Thread {
             while((serverInput = server.readLine()) != null) {
                 String args[] = serverInput.split(" ");
                 if(incomingMessage) {
-                    if (Console.debug) Console.debug("GET: "+serverInput);
+                    Console.debug("GET: "+serverInput);
                     if (args[0].equals("sender")) sender = args[1];
                     if (args[0].equals("receiver")) receiver = args[1];
                     if (args[0].equals("message")) message = serverInput.substring("message".length()+1,serverInput.length());
                     if (args[0].equals("end")) {
-                        File file =new File(Console.logfile);
-                        if(!file.exists()) file.createNewFile();
-                        FileWriter fw;
-                        fw = new FileWriter(file);
-                        PrintWriter pw = new PrintWriter(new BufferedWriter(fw));
-                        pw.println(MessageList.getLastMSGID());
-                        pw.println(sender);
-                        pw.println(receiver);
-                        pw.println(fromHex(message));
-                        pw.close();
-                        MessageList.addMessage(MessageList.getLastMSGID(), sender, receiver, fromHex(message));
+//                        File file =new File(Console.logfile);
+//                        if(!file.exists()) file.createNewFile();
+//                        FileWriter fw;
+//                        fw = new FileWriter(file);
+//                        PrintWriter pw = new PrintWriter(new BufferedWriter(fw));
+//                        pw.println(MessageList.getLastMSGID());
+//                        pw.println(sender);
+//                        pw.println(receiver);
+//                        pw.println(fromHex(message));
+//                        pw.close();
+                        MessageList.addMessage(messageID, sender, receiver, fromHex(message));
+                        if(Console.init) MessageList.formMessages();
                         incomingMessage = false;
                     }
                 } else if(args[0].equals("token")) {
                     Console.setToken(args[1]);
                     Console.debug("Server > " + serverInput);
                 } else if(args[0].equals("compose")) {
-                    MessageList.setLastMSGID(Integer.valueOf(args[2]));
-                    Console.debug("Incoming message ID: " + MessageList.getLastMSGID());
+                    //MessageList.setLastMSGID(Integer.valueOf(args[2]));
+                    Console.debug("Incoming message ID: " + args[2]);
+                    messageID = args[2];
                     incomingMessage = true; //tepels
                 }
             }

@@ -1,28 +1,23 @@
-import java.io.*;
 import java.util.ArrayList;
-import java.util.concurrent.CompletionService;
 
 public class MessageList {
 
     private ArrayList<Message> messageCollection = new ArrayList<>();
     private String user;
     private static String talkingWith;
-    private static String messageBody = "<html><body style=\"font-family: sans-serif;\">";
+    private String messageBody = "<html><body style=\"font-family: sans-serif;\">";
     private static String messageBodyEnd = "</body></html>";
     private int lastID;
     private static ArrayList<MessageList> usersCollection = new ArrayList<>();
     private static ArrayList<String> users = new ArrayList<>();
     private static boolean init = false;
     private static Integer lastMessageID = 0;
-
     public MessageList(String user) {
         this.user = user;
     }
-
     public static String[] getUsers() {
         return (String[]) users.toArray();
     }
-
     public static ArrayList<MessageList> getCollection() {
         return usersCollection;
     }
@@ -91,57 +86,43 @@ public class MessageList {
         while (ServerListener.incomingMessage) ;
         Communication.getMessages();
         Console.log("Loaded MessagesList, amount of conversations : " + usersCollection.size());
-        for (MessageList ml:usersCollection) for (Message m:ml.messageCollection) if (m.getMessageID()==getLastID()) {
-            String docu = formMessages(ml.user);
-            Client.client.txtPaneMessages.setText(docu);
+        Client.client.listUsers.setListData(usersCollection.toArray());
+        for (MessageList ml:usersCollection) {
+            for (Message m:ml.messageCollection) if (m.getMessageID()==getLastID()) {
+                String docu = formMessages(ml.user);
+                Client.client.txtPaneMessages.setText(docu);
+            }
         }
+        Console.log("Last talked to user: " + talkingWith + " amount of messages: " + getLastUser().getList().size());
         Console.init = true;
     }
 
-    private static String formMessages(String user) {
-        Console.debug("Setting messagPane="+user);
+    public static String formMessages(String user) {
+        Console.debug("Forming messages="+user);
         String document;
         MessageList list = null;
-        for(MessageList l:MessageList.getCollection()) if(l.user.equals(user)) list = l;
+        for(MessageList l:MessageList.getCollection())
+            if(l.user.equals(user)) list = l;
         if (user.equals(Console.user) || list == null) return null;
         MessageList.talkingWith = list.getUser();
-        Console.log("Last talked to user: " + talkingWith + " amount of messages: " + list.getList().size());
-        for (Message msg : list.getList()) messageBody += msg.composeMessage();
-        document = messageBody + messageBodyEnd;
+        for (Message msg : list.getList())
+            if(!list.messageBody.contains("id="+msg.getMessageID()+" ")) {
+                list.messageBody += msg.composeMessage();
+            }
+        document = list.messageBody + messageBodyEnd;
         return document;
     }
 
-    public static void formMessages() {
-        String document = "";
-        MessageList list = MessageList.getLastUser();
-        talkingWith = list.getUser();
-        System.out.println("Last talked to user: " + talkingWith + " amount of messages: " + list.getList().size());
-        for (Message msg : list.getList()) messageBody += msg.composeMessage();
-        document = messageBody + messageBodyEnd;
-        Client.client.txtPaneMessages.setText(documentsdser);
+    public String formMessages() {
+        return formMessages(user);
     }
-
-//        new Thread(() -> {
-//            try {
-//                Thread.sleep(1000);
-//                while (true) {
-//                    while(ServerListener.incomingMessage) Thread.sleep(350);
-//                    LoginForm.instance.getMessages(new String[]{"get",""+getLastID()});
-//                    MessageList.renew(LoginForm.getUser());
-//                    Thread.sleep(350);
-//                }
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            } finally {
-//                System.err.println("Receiver Thread has stopped.");
-//            }
-//        }).start();
-
-//        init = true;
-//    }
 
     public String getUser() {
         return user;
+    }
+
+    public static String getCurrentUser() {
+        return talkingWith;
     }
 
     public static void filter() {
@@ -154,7 +135,7 @@ public class MessageList {
         }
     }
 
-    public synchronized static void renew(String user) {
+//    public synchronized static void renew(String user) {
 //        try {
 //            FileInputStream fs = new FileInputStream(LoginForm.path+ LoginForm.log);
 //            BufferedReader br = new BufferedReader(new InputStreamReader(fs));
@@ -179,7 +160,7 @@ public class MessageList {
 //        } catch (IOException e) {
 //            e.printStackTrace();
 //        }
-    }
+//    }
 
     private static void add(String progUser, String id, String sender, String receiver, String msg) {
         boolean exist = false;
@@ -210,6 +191,7 @@ public class MessageList {
     }
 
     public static int getLastMSGID() {
+        Console.debug("Last Message ID="+lastMessageID);
         return lastMessageID;
     }
 
@@ -219,7 +201,7 @@ public class MessageList {
         Message msg = new Message(msgID, sender, receiver, text);
         if(usersCollection.size() ==0) usersCollection.add(new MessageList(receiver));
         else {
-            // Check if its a loop message
+            // Check if its a loopback message
             if(receiver.equals(Console.user) && sender.equals(Console.user)) return;
             // Add message to existing list
             for(MessageList l:usersCollection) if(l.user.equals(receiver)) {
@@ -237,5 +219,14 @@ public class MessageList {
                 usersCollection.add(new MessageList(receiver));
             else Console.debug("Could not add Conversation: SENDER="+sender+" RECEIVER="+receiver);
         }
+    }
+
+    @Override
+    public String toString(){
+        return user;
+    }
+
+    public boolean hasUpdate() {
+        return !Client.client.txtPaneMessages.getText().contains("id=\""+lastMessageID+"\"");
     }
 }

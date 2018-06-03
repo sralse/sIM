@@ -24,10 +24,10 @@ public class Message {
 
     public String composeMessage() {
         if(Console.user.equals(sender))
-            return "<b color=" + colorSenderFG + "> " + sender + " :</b>" +
+            return "<b id="+messageID+" color=" + colorSenderFG + "> " + sender + " :</b>" +
                     "<font> " + message + " </font><br>";
         else
-            return "<b bgcolor=" + colorBG + " color=" + colorReceiverFG + "> " + sender + " :</b>" +
+            return "<b id="+messageID+" bgcolor=" + colorBG + " color=" + colorReceiverFG + "> " + sender + " :</b>" +
                     "<font  bgcolor=" + colorBG + "> " + message + " </font><br>";
     }
 }

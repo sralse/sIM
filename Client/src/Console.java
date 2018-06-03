@@ -31,11 +31,14 @@ public class Console {
     }
 
     private void setup() {
+        if (init) return;
         // Set up the textfields with the default data.
         Client.client.spinner1.setValue(Integer.parseInt(port));
         debug("Setting host to: "+host);
         Client.client.txtFieldServer.setText(host);
         Client.client.txtFieldLogFile.setText(logfile);
+        Client.client.txtFieldUser.setText(user);
+        init = true;
     }
 
     public void login() {
@@ -73,9 +76,16 @@ public class Console {
         Client.client.setStatus("Loading messages...", false);
         MessageList.init();
 
+        // Show messages
         Client.client.setStatus("Done.", false);
         Client.client.addLoading();
         Client.client.txtFieldChat.requestFocus();
+
+        // Select current user
+        Client.client.listUsers.setSelectedValue(MessageList.getLastUser(), true);
+
+        // Start refresh thread
+        Communication.startThread();
     }
 
     private boolean getCredentials() {

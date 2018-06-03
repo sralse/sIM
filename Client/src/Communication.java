@@ -9,6 +9,7 @@ public class Communication {
     private static Socket socket;
     private static PrintWriter pw;
     private static ServerListener listener;
+    private static Thread refreshThread;
     private static boolean init;
 
     public static boolean testConnection(String ip, int port, int timeout) {
@@ -99,8 +100,32 @@ public class Communication {
         }
     }
 
-    public static void sendMessage(String text, String receiver) {
+    public static void sendMessage(String receiver, String text) {
         // TODO Add message to messagelist
+        Console.log("Sending message: receiver="+receiver+" msg="+text);
         pw.println("say "+Console.token+" "+receiver+" "+text);
+    }
+
+    public static void startThread() {
+        refreshThread = new Thread(() -> {
+            try {
+                Thread.sleep(1000);
+                while (true) {
+                    if(pw!=null && !ServerListener.incomingMessage) pw.println("get "+Console.token+" "+MessageList.getLastMSGID());
+                    Thread.sleep(1000);
+                    String u = MessageList.getCurrentUser(), l = MessageList.formMessages(u);
+                    if(Client.client.listUsers.getSelectedValue().toString().equals(u) &&
+                            MessageList.getLastUser().hasUpdate()){
+                        Client.client.txtPaneMessages.setText(l);
+                        Console.debug("Updating Message Pane for: "+u);
+                    }
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } finally {
+                System.err.println("Receiver Thread has stopped.");
+            }
+        });
+        refreshThread.start();
     }
 }

@@ -36,7 +36,6 @@ public class ServerListener extends Thread {
 //                        pw.println(fromHex(message));
 //                        pw.close();
                         MessageList.addMessage(messageID, sender, receiver, fromHex(message));
-                        if(Console.init) MessageList.formMessages();
                         incomingMessage = false;
                     }
                 } else if(args[0].equals("token")) {

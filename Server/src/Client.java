@@ -8,6 +8,8 @@ public class Client extends Thread{
     public static volatile PrintWriter out;
     private Socket client;
     private JPanel panelLogin;
+    private JScrollPane scrollChat;
+    private JScrollPane scrollUsers;
     private JPanel panelRegister;
     private JPanel panelChat;
 

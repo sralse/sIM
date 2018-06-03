@@ -56,7 +56,7 @@ public class ClientListener extends Thread {
                     if (token == null) token = args[1];
                     getClientInfo(st);
                     rs = st.executeQuery("SELECT * FROM users " +
-                            "WHERE userName = '" + args[1] + "';");
+                            "WHERE sessionKey = '" + token + "';");
                     if(rs.next()) {
                         // Here we handle our sending of a message.
                         Server.log("Sending message to: " + args[2]);
@@ -67,7 +67,7 @@ public class ClientListener extends Thread {
                                         "(NULL,'"+clientName+"','"+args[2]+"','"+msg+"',NULL);");
                     } else {
                         Communication.result(rs);
-                        Server.warn(System.currentTimeMillis() + " > User not found.");
+                        Server.warn(System.currentTimeMillis() + "{SAY} > User not found.");
                         return;
                     }
                 } else if (args[0].equals("get") && (args.length > 2 || args.length < 4)) {
@@ -77,7 +77,7 @@ public class ClientListener extends Thread {
                             "WHERE sessionKey = '" + token + "';");
                     if(rs.next()) {
                         clientName = rs.getString(1);
-                        Server.log("Retrieving info for user: " + clientName);
+                        Server.debug("Retrieving info for user: " + clientName);
                         if(args.length == 2) rs = st.executeQuery("SELECT messageID, sender, receiver, message FROM chatLog" +
                                 " WHERE receiver = '"+clientName+"' || sender = '"+clientName+"';");
                         else rs = st.executeQuery("SELECT messageID, sender, receiver, message FROM chatLog" +
@@ -91,7 +91,7 @@ public class ClientListener extends Thread {
                         }
                     } else {
                         Communication.result(rs);
-                        Server.warn(System.currentTimeMillis() + " > User not found.");
+                        Server.warn(System.currentTimeMillis() + "{GET} > User not found.");
                         return;
                     }
                 } else if (args[0].equals("register") && (args.length == 4)) {

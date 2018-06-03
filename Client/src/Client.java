@@ -1,29 +1,34 @@
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.text.DefaultCaret;
 import java.awt.*;
+import java.io.IOException;
+import java.net.URL;
 
-@SuppressWarnings("unused")
+//@SuppressWarnings("unused")
 public class Client {
     public static Client client = null;
     private static JFrame frame = null;
     private static Console console = null;
     private JPanel panel1;
     private JPanel panelLogin;
-    public JTextPane txtPaneMessages;
     private JPanel paneLogin;
     private JPanel paneChat;
     private JPanel paneRegister;
-    private JTabbedPane tabbedPane1;
-    protected JTextField txtFieldChat;
-    private JTextField txtFieldRegisterUser;
-    private JTextField txtFieldRegisterEmail;
-    private JButton sendButton;
+    private JButton btnSend;
     private JButton btnRegister;
     private JButton btnLogin;
+    private JButton btnSearch;
     private JPasswordField pwFieldRegister;
     private JPasswordField pwFieldUserPassword;
-    private JTextField txtFieldUser;
+    private JTextField txtFieldRegisterUser;
+    private JTextField txtFieldRegisterEmail;
+    public JTextField txtFieldChat;
+    public JTextField txtFieldUser;
     public JTextField txtFieldServer;
     public JTextField txtFieldLogFile;
+    public JTextField txtFieldSearchUser;
     private JLabel lblSttxt;
     private JLabel lblLogFile;
     private JLabel lblServer;
@@ -34,13 +39,15 @@ public class Client {
     private JLabel lblMailUser;
     private JLabel lblPAssword;
     private JLabel lblUserMail;
-    private JList listUsers;
+    public JList listUsers;
     public JSpinner spinner1;
     private JCheckBox checkBox1;
     private JProgressBar progressBar1;
-    private JTextField textField2;
-    private JButton button1;
-
+    public JTextPane txtPaneMessages;
+    private JTabbedPane tabbedPane1;
+    public JScrollPane scrollChat;
+    private JScrollPane scrollUsers;
+    // Dimensions
     private Dimension
             currentSize = new Dimension(300,330),
             sizeLogin = new Dimension(300, 330),
@@ -51,7 +58,7 @@ public class Client {
             loadingStatus = 0,
             loadingAddition = 1;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         // Set the UI to look like Windows
         try {
             UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
@@ -62,6 +69,8 @@ public class Client {
         frame = new JFrame("Client");
         frame.setContentPane(new Client().panel1);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        URL iconURL = Client.class.getResource("sim.png");
+        frame.setIconImage(new ImageIcon(iconURL).getImage());
         frame.pack();
         frame.setVisible(true);
         // Ensure we have a console object
@@ -75,7 +84,9 @@ public class Client {
         centerFrame();
         // Action listeners
         setupActionListeners();
-
+        // Autoscroll
+        DefaultCaret caret = (DefaultCaret)txtPaneMessages.getCaret();
+        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
     }
 
     private void setupActionListeners() {
@@ -91,12 +102,24 @@ public class Client {
         btnRegister.addActionListener(e -> register());
         // Chat Form
         txtFieldChat.addActionListener(e -> sendChat());
+        btnSend.addActionListener(e -> sendChat());
+        listUsers.addListSelectionListener(e -> changeChat());
+        txtFieldSearchUser.addCaretListener(e -> searchUser());
+    }
 
+    private void searchUser() {
+        
+    }
+
+    private void changeChat() {
+        MessageList ml = (MessageList) listUsers.getSelectedValue();
+        txtPaneMessages.setText("");
+        txtPaneMessages.setText(ml.formMessages());
     }
 
     private void sendChat() {
         //MessageList.addLocal(txtFieldChat.getText());
-        Communication.sendMessage(MessageList.getLastUser().getUser(), txtFieldChat.getText());
+        Communication.sendMessage(MessageList.getCurrentUser(), txtFieldChat.getText());
         txtFieldChat.setText("");
     }
 
@@ -118,6 +141,12 @@ public class Client {
                 pwFieldRegister.getPassword(),
                 txtFieldServer.getText(),
                 (Integer) spinner1.getValue());
+        console.user = txtFieldRegisterUser.getText();
+        console.userpass = Security.mda5(String.valueOf(txtFieldRegisterUser.getText()));
+        console.host = txtFieldServer.getText();
+        console.logfile = txtFieldLogFile.getText();
+        console.port = ""+spinner1.getValue();
+        console.login();
     }
 
     private void login() {
